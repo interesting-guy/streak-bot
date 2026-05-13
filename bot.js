@@ -66,7 +66,8 @@ bot.on('message', (msg) => {
 
   if (!linkedinMatch) {
     bot.sendMessage(chatId,
-      `🔗 Please include your LinkedIn post URL ${username}!\nExample: posted https://linkedin.com/posts/...`
+      `🔗 Please include your LinkedIn post URL ${username}!\nExample: posted https://linkedin.com/posts/...`,
+      { message_thread_id: msg.message_thread_id }
     );
     return;
   }
@@ -75,7 +76,8 @@ bot.on('message', (msg) => {
 
   if (!VALID_POST_PATHS.test(url)) {
     bot.sendMessage(chatId,
-      `❌ That doesn't look like a LinkedIn post URL ${username}\nPlease share your LinkedIn post link!`
+      `❌ That doesn't look like a LinkedIn post URL ${username}\nPlease share your LinkedIn post link!`,
+      { message_thread_id: msg.message_thread_id }
     );
     return;
   }
@@ -96,7 +98,8 @@ bot.on('message', (msg) => {
     };
     saveData(data);
     bot.sendMessage(chatId,
-      `🎯 Day 1 on the LinkedIn grind, ${username}!\nPost logged. The algorithm rewards consistency 👀`
+      `🎯 Day 1 on the LinkedIn grind, ${username}!\nPost logged. The algorithm rewards consistency 👀`,
+      { message_thread_id: msg.message_thread_id }
     );
     return;
   }
@@ -106,7 +109,8 @@ bot.on('message', (msg) => {
   // Already posted today
   if (user.lastPost === todayStr) {
     bot.sendMessage(chatId,
-      `✅ LinkedIn post already logged today ${username}!\nStreak: ${user.streak} days 🔥 Go touch grass, you've done enough today.`
+      `✅ LinkedIn post already logged today ${username}!\nStreak: ${user.streak} days 🔥 Go touch grass, you've done enough today.`,
+      { message_thread_id: msg.message_thread_id }
     );
     return;
   }
@@ -146,7 +150,7 @@ bot.on('message', (msg) => {
     reply = `💀 ${username} your ${oldStreak} day LinkedIn streak is gone.\nThe algorithm forgot you. Day 1 starts now.\nCome back stronger! 💪`;
   }
 
-  bot.sendMessage(chatId, reply);
+  bot.sendMessage(chatId, reply, { message_thread_id: msg.message_thread_id });
 });
 
 // ─── /streak ─────────────────────────────────────────────────────────────────
@@ -159,7 +163,9 @@ bot.onText(/\/streak/, (msg) => {
   const user = data[userId];
 
   if (!user) {
-    bot.sendMessage(chatId, `📭 No streak data yet ${username}!\nSend a LinkedIn post to start your streak.`);
+    bot.sendMessage(chatId, `📭 No streak data yet ${username}!\nSend a LinkedIn post to start your streak.`,
+      { message_thread_id: msg.message_thread_id }
+    );
     return;
   }
 
@@ -169,7 +175,8 @@ bot.onText(/\/streak/, (msg) => {
     `🏆 Longest ever: ${user.longest} days\n` +
     `📝 Total posts: ${user.totalPosts}\n` +
     `🗓 Last post: ${formatDate(user.lastPost)}\n` +
-    `─────────────────`
+    `─────────────────`,
+    { message_thread_id: msg.message_thread_id }
   );
 });
 
@@ -181,7 +188,9 @@ bot.onText(/\/leaderboard/, (msg) => {
   const entries = Object.values(data);
 
   if (entries.length === 0) {
-    bot.sendMessage(chatId, '📭 No streaks yet! Be the first to post.');
+    bot.sendMessage(chatId, '📭 No streaks yet! Be the first to post.',
+      { message_thread_id: msg.message_thread_id }
+    );
     return;
   }
 
@@ -201,7 +210,8 @@ bot.onText(/\/leaderboard/, (msg) => {
   }).join('\n');
 
   bot.sendMessage(chatId,
-    `🏆 LINKEDIN GRIND LEADERBOARD\n─────────────────\n${rows}\n─────────────────\nPost daily. Beat the algorithm. Climb the ranks!`
+    `🏆 LINKEDIN GRIND LEADERBOARD\n─────────────────\n${rows}\n─────────────────\nPost daily. Beat the algorithm. Climb the ranks!`,
+    { message_thread_id: msg.message_thread_id }
   );
 });
 
@@ -215,7 +225,9 @@ bot.onText(/\/mystats/, (msg) => {
   const user = data[userId];
 
   if (!user) {
-    bot.sendMessage(chatId, `📭 No stats yet ${username}!\nSend a LinkedIn post to start tracking.`);
+    bot.sendMessage(chatId, `📭 No stats yet ${username}!\nSend a LinkedIn post to start tracking.`,
+      { message_thread_id: msg.message_thread_id }
+    );
     return;
   }
 
@@ -228,7 +240,8 @@ bot.onText(/\/mystats/, (msg) => {
     `📅 Last post: ${formatDate(user.lastPost)}\n` +
     `📝 Total posts: ${user.totalPosts}\n` +
     `⚠️ Grace period: ${graceStatus}\n` +
-    `─────────────────`
+    `─────────────────`,
+    { message_thread_id: msg.message_thread_id }
   );
 });
 

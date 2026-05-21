@@ -168,6 +168,17 @@ bot.on('message', (msg) => {
   const data = loadData();
   const todayStr = today();
 
+  // If user ID unknown but username matches a seeded entry, migrate it
+  if (!data[userId] && msg.from.username) {
+    const usernameKey = `@${msg.from.username.toLowerCase()}`;
+    if (data[usernameKey]) {
+      data[userId] = data[usernameKey];
+      delete data[usernameKey];
+      saveData(data);
+      console.log(`Migrated @${msg.from.username} → user ID ${userId}`);
+    }
+  }
+
   if (!data[userId]) {
     // First post ever — BASE $YIN only
     const yinEarned = 50;

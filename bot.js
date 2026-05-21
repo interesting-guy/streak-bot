@@ -113,24 +113,66 @@ function getWeekYIN(user) {
     .reduce((sum, h) => sum + h.amount, 0);
 }
 
-// ─── Startup migration ────────────────────────────────────────────────────────
+// ─── Startup: seed + migration ───────────────────────────────────────────────
 
-(function migrateData() {
+const SEED_USERS = [
+  { username: 'Daniel_Simplicity', streak: 8 },
+  { username: 'simple_toxa',       streak: 7 },
+  { username: 'MarianneOnTG',      streak: 6 },
+  { username: 'Alex_Simplicity',   streak: 4 },
+  { username: 'GalileoWil',        streak: 4 },
+  { username: 'Truunik',           streak: 3 },
+  { username: 'aBitCrafty',        streak: 3 },
+  { username: 'Jumperz11',         streak: 2 },
+  { username: 'camskimood',        streak: 1 },
+  { username: 'Tusharlog',         streak: 1 },
+];
+
+(function startup() {
   try {
     const data = loadData();
-    let count = 0;
+    const userCount = Object.keys(data).length;
+
+    // ── Auto-seed if file is empty or missing ──────────────────────────────
+    if (userCount === 0) {
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      const lastPost = yesterday.toISOString().slice(0, 10);
+
+      for (const u of SEED_USERS) {
+        const key = `@${u.username.toLowerCase()}`;
+        data[key] = {
+          username: u.username,
+          streak: u.streak,
+          longest: u.streak,
+          lastPost,
+          totalPosts: u.streak,
+          gracePeriodUsed: false,
+          posts: [],
+          yin: 0,
+          yinHistory: [],
+        };
+      }
+      saveData(data);
+      console.log(`Seeded initial data for ${SEED_USERS.length} users`);
+    } else {
+      console.log(`Existing data found (${userCount} entries), skipping seed`);
+    }
+
+    // ── Add $YIN fields to any user missing them ───────────────────────────
+    let migrated = 0;
     for (const userId in data) {
       let changed = false;
-      if (data[userId].yin === undefined)   { data[userId].yin = 0;         changed = true; }
-      if (!data[userId].yinHistory)          { data[userId].yinHistory = []; changed = true; }
-      if (changed) count++;
+      if (data[userId].yin === undefined) { data[userId].yin = 0;         changed = true; }
+      if (!data[userId].yinHistory)       { data[userId].yinHistory = []; changed = true; }
+      if (changed) migrated++;
     }
-    if (count > 0) {
+    if (migrated > 0) {
       saveData(data);
-      console.log(`Migrated ${count} users to add $YIN fields`);
+      console.log(`Migrated ${migrated} users to add $YIN fields`);
     }
   } catch (err) {
-    console.error('Migration failed:', err.message);
+    console.error('Startup failed:', err.message);
   }
 })();
 

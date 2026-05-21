@@ -10,7 +10,8 @@ if (!TOKEN) {
 }
 
 const bot = new TelegramBot(TOKEN, { polling: true });
-const STREAKS_FILE = path.join(__dirname, 'streaks.json');
+const DATA_DIR = process.env.DATA_DIR || __dirname;
+const STREAKS_FILE = path.join(DATA_DIR, 'streaks.json');
 const LINKEDIN_URL_REGEX = /https?:\/\/(www\.)?linkedin\.com\/\S+/i;
 const VALID_POST_PATHS = /linkedin\.com\/(posts|feed\/update|pulse)\//i;
 

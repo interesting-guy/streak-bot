@@ -171,10 +171,52 @@ const SEED_USERS = [
       saveData(data);
       console.log(`Migrated ${migrated} users to add $YIN fields`);
     }
+
+    // ── Retroactive $YIN reward (runs once — only if every user has yin=0) ─
+    retroactiveYIN();
   } catch (err) {
     console.error('Startup failed:', err.message);
   }
 })();
+
+function retroactiveYIN() {
+  try {
+    const data = loadData();
+    const users = Object.entries(data);
+
+    // Skip entirely if any user already has yin > 0
+    const anyEarned = users.some(([, u]) => (u.yin || 0) > 0);
+    if (anyEarned) {
+      console.log('Retroactive $YIN: skipping — some users already have $YIN');
+      return;
+    }
+
+    if (users.length === 0) return;
+
+    const todayStr = today();
+
+    // Sort by streak desc to determine rank (same logic as leaderboard)
+    const sorted = users.sort(([, a], [, b]) => b.streak - a.streak);
+
+    sorted.forEach(([userId, user], i) => {
+      const rank = i + 1;
+      const { amount, streakMultiplier, rankMultiplier } = calculateYIN(user.streak, rank, false);
+      user.yin = amount;
+      user.yinHistory.push({
+        date: todayStr,
+        amount,
+        reason: `retroactive reward — streak ${user.streak} days, rank ${rank}`,
+        balanceAfter: amount,
+      });
+      console.log(`  Retroactive $YIN: @${user.username} rank ${rank} streak ${user.streak} → +${amount} $YIN (${streakMultiplier}x streak × ${rankMultiplier}x rank)`);
+    });
+
+    saveData(data);
+    console.log(`Retroactive $YIN: awarded to ${sorted.length} users`);
+  } catch (err) {
+    console.error('Retroactive $YIN failed:', err.message);
+  }
+}
 
 // ─── Handle "posted" messages ────────────────────────────────────────────────
 

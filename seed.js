@@ -16,7 +16,7 @@ const lastPost = yesterday.toISOString().slice(0, 10);
 const KNOWN_USERS = [
   { username: 'Daniel_Simplicity', streak: 8 },
   { username: 'simple_toxa',       streak: 7 },
-  { username: 'MarianneOnTG',      streak: 5 },
+  { username: 'MarianneOnTG',      streak: 6 },
   { username: 'Alex_Simplicity',   streak: 4 },
   { username: 'GalileoWil',        streak: 4 },
   { username: 'Truunik',           streak: 3 },
